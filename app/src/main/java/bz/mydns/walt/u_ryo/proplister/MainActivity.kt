@@ -8,8 +8,6 @@ import android.text.TextUtils
 import android.util.Log
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
-import butterknife.ButterKnife
-import butterknife.OnClick
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
@@ -21,36 +19,35 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-        ButterKnife.bind(this)
         recyclerView.layoutManager = LinearLayoutManager(this)
-    }
 
-    @OnClick(R.id.button)
-    fun onClick() {
-        if (TextUtils.isEmpty(textField.text)) return
-        Retrofit.Builder()
-                .baseUrl("https://api.github.com/")
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .addConverterFactory(GsonConverterFactory.create())
-                .build()
-                .create<GitHubService>(GitHubService::class.java)
-                .getRepos(textField.text.toString())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-                .subscribe({
-                    result -> Log.d("MainActivity", result.toString())
-                    recyclerView.adapter =
-                            RecyclerViewAdapter(result.map { r -> r.name })
-                    (getSystemService(Context.INPUT_METHOD_SERVICE)
-                            as InputMethodManager)
-                            .hideSoftInputFromWindow(
-                                    currentFocus.windowToken,
-                                    InputMethodManager.HIDE_NOT_ALWAYS)
-                }, {
-                    error -> Log.e("MainActivity", "ERROR!", error)
-                    Toast.makeText(this, getString(R.string.network_error),
-                            Toast.LENGTH_LONG).show()
-                })
-        textField.requestFocus()
+        button.setOnClickListener {
+            if (!TextUtils.isEmpty(textField.text)) {
+                Retrofit.Builder()
+                        .baseUrl("https://api.github.com/")
+                        .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+                        .addConverterFactory(GsonConverterFactory.create())
+                        .build()
+                        .create<GitHubService>(GitHubService::class.java)
+                        .getRepos(textField.text.toString())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribeOn(Schedulers.io())
+                        .subscribe({ result ->
+                            Log.d("MainActivity", result.toString())
+                            recyclerView.adapter =
+                                    RecyclerViewAdapter(result.map { r -> r.name })
+                            (getSystemService(Context.INPUT_METHOD_SERVICE)
+                                    as InputMethodManager)
+                                    .hideSoftInputFromWindow(
+                                            currentFocus.windowToken,
+                                            InputMethodManager.HIDE_NOT_ALWAYS)
+                        }, { error ->
+                            Log.e("MainActivity", "ERROR!", error)
+                            Toast.makeText(this, getString(R.string.network_error),
+                                    Toast.LENGTH_LONG).show()
+                        })
+            }
+            textField.requestFocus()
+        }
     }
 }
