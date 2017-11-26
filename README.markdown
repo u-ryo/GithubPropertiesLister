@@ -15,7 +15,6 @@ Fortunately I could create an application,
 but it was written in Java8 (not Kotlin),
 LinearLayout (not ConstraintLayout),
 ListView (not RecyclerView),
-no binding (no butterknife),
 no Rx (no RxAndroid),
 no error handling,
 no using resources (strings.xml).
