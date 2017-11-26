@@ -4,10 +4,9 @@ This is an adroid application just for my practice.
 Input the user name and push the submit button,
 then the names of Github Project names of that user will be listed below.
 
-1. Input a username of github and push the Submit button  
-![Input a username of github and push the Submit button](https://raw.githubusercontent.com/wiki/u-ryo/GithubPropertiesLister/Screenshot_1511694747.png "Input a username of github and push the Submit button")
-1. Project names of that user are listed
-![Project names of that user are listed](https://raw.githubusercontent.com/wiki/u-ryo/GithubPropertiesLister/Screenshot_1511694784.png "Project names of that user are listed")
+|Input a username of github and push the Submit button|Project names of that user are listed|
+|---|---|
+|![Input a username of github and push the Submit button](https://raw.githubusercontent.com/wiki/u-ryo/GithubPropertiesLister/Screenshot_1511694747.png "Input a username of github and push the Submit button")|![Project names of that user are listed](https://raw.githubusercontent.com/wiki/u-ryo/GithubPropertiesLister/Screenshot_1511694784.png "Project names of that user are listed")|
 
 ## Motivation
 I had a technical interview the other day at some company,
