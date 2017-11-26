@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">PropLister</string>
+    <string name="network_error">Network Error occurred.</string>
+    <string name="button_name">Submit</string>
+</resources>
