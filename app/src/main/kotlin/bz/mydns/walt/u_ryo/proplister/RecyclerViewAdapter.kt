@@ -22,12 +22,13 @@ class RecyclerViewAdapter(data: List<String>):
     override fun onCreateViewHolder(
             parent: ViewGroup?, viewType: Int): ViewHolder {
         val view: View = LayoutInflater.from(parent?.context)
-                .inflate(R.layout.row, parent, false)
+                .inflate(android.R.layout.simple_list_item_1,
+                        parent, false)
         return ViewHolder(view)
     }
 
     class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView) {
-        var mTextView: TextView? = itemView.findViewById(R.id.rowtext)
+        var mTextView: TextView? = itemView.findViewById(android.R.id.text1)
         companion object {
             fun create(v: TextView): ViewHolder = ViewHolder(v)
         }
