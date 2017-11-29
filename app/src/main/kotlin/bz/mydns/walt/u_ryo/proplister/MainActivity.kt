@@ -24,14 +24,13 @@ class MainActivity: AppCompatActivity() {
         recyclerView.layoutManager = LinearLayoutManager(this)
     }
 
-    fun submit(view: View) {
-        button.setOnClickListener {
-            if (!TextUtils.isEmpty(textField.text)) {
-                Single.using({
-                    progressBar.visibility = View.VISIBLE
-                    button.isEnabled = false
-                }, {
-                    Retrofit.Builder()
+    fun submit(button: View) {
+        if (!TextUtils.isEmpty(textField.text)) {
+            Single.using({
+                progressBar.visibility = View.VISIBLE
+                button.isEnabled = false
+            }, {
+                Retrofit.Builder()
                         .baseUrl("https://api.github.com/")
                         .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                         .addConverterFactory(GsonConverterFactory.create())
@@ -40,26 +39,25 @@ class MainActivity: AppCompatActivity() {
                         .getRepos(textField.text.toString())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribeOn(Schedulers.io())
-                }, {
-                    progressBar.visibility = View.GONE
-                    button.isEnabled = true
-                })
-                        .subscribe({ result ->
-                            Log.d("MainActivity", result.toString())
-                            recyclerView.adapter =
-                                    RecyclerViewAdapter(result.map { r -> r.name })
-                            (getSystemService(Context.INPUT_METHOD_SERVICE)
-                                    as InputMethodManager)
-                                    .hideSoftInputFromWindow(
-                                            currentFocus.windowToken,
-                                            InputMethodManager.HIDE_NOT_ALWAYS)
-                        }, { error ->
-                            Log.e("MainActivity", "ERROR!", error)
-                            Toast.makeText(this, getString(R.string.network_error),
-                                    Toast.LENGTH_LONG).show()
-                        })
-            }
-            textField.requestFocus()
+            }, {
+                progressBar.visibility = View.GONE
+                button.isEnabled = true
+            })
+                    .subscribe({ result ->
+                        Log.d("MainActivity", result.toString())
+                        recyclerView.adapter =
+                                RecyclerViewAdapter(result.map { r -> r.name })
+                        (getSystemService(Context.INPUT_METHOD_SERVICE)
+                                as InputMethodManager)
+                                .hideSoftInputFromWindow(
+                                        currentFocus.windowToken,
+                                        InputMethodManager.HIDE_NOT_ALWAYS)
+                    }, { error ->
+                        Log.e("MainActivity", "ERROR!", error)
+                        Toast.makeText(this, getString(R.string.network_error),
+                                Toast.LENGTH_LONG).show()
+                    })
         }
+        textField.requestFocus()
     }
 }
