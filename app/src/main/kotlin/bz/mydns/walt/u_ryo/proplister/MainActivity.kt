@@ -29,6 +29,7 @@ class MainActivity: AppCompatActivity() {
             if (!TextUtils.isEmpty(textField.text)) {
                 Single.using({
                     progressBar.visibility = View.VISIBLE
+                    button.isEnabled = false
                 }, {
                     Retrofit.Builder()
                         .baseUrl("https://api.github.com/")
@@ -41,6 +42,7 @@ class MainActivity: AppCompatActivity() {
                         .subscribeOn(Schedulers.io())
                 }, {
                     progressBar.visibility = View.GONE
+                    button.isEnabled = true
                 })
                         .subscribe({ result ->
                             Log.d("MainActivity", result.toString())
