@@ -17,6 +17,7 @@ LinearLayout (not ConstraintLayout),
 ListView (not RecyclerView),
 no Rx (no RxAndroid),
 no error handling,
-no using resources (strings.xml).
+no using resources (strings.xml),
+no ProgressBar.
 I'd like to write more fluently.
 I created this project for my revenge (but for hours).

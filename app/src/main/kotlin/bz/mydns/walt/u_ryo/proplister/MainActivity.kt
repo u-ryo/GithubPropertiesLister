@@ -6,8 +6,10 @@ import android.os.Bundle
 import android.support.v7.widget.LinearLayoutManager
 import android.text.TextUtils
 import android.util.Log
+import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.Toast
+import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
@@ -15,15 +17,20 @@ import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 
-class MainActivity : AppCompatActivity() {
+class MainActivity: AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         recyclerView.layoutManager = LinearLayoutManager(this)
+    }
 
+    fun submit(view: View) {
         button.setOnClickListener {
             if (!TextUtils.isEmpty(textField.text)) {
-                Retrofit.Builder()
+                Single.using({
+                    progressBar.visibility = View.VISIBLE
+                }, {
+                    Retrofit.Builder()
                         .baseUrl("https://api.github.com/")
                         .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
                         .addConverterFactory(GsonConverterFactory.create())
@@ -32,6 +39,9 @@ class MainActivity : AppCompatActivity() {
                         .getRepos(textField.text.toString())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribeOn(Schedulers.io())
+                }, {
+                    progressBar.visibility = View.GONE
+                })
                         .subscribe({ result ->
                             Log.d("MainActivity", result.toString())
                             recyclerView.adapter =
