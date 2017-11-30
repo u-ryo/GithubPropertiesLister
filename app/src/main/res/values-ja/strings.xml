@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">PropLister</string>
+    <string name="network_error">ネットワークエラーが起きました。</string>
+    <string name="button_name">検索</string>
+    <string name="empty_input">ユーザ名を入れて下さい。</string>
+</resources>
