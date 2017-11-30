@@ -26,38 +26,54 @@ class MainActivity: AppCompatActivity() {
 
     fun submit(button: View) {
         if (!TextUtils.isEmpty(textField.text)) {
-            Single.using({
-                progressBar.visibility = View.VISIBLE
-                button.isEnabled = false
-            }, {
-                Retrofit.Builder()
-                        .baseUrl("https://api.github.com/")
-                        .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                        .addConverterFactory(GsonConverterFactory.create())
-                        .build()
-                        .create<GitHubService>(GitHubService::class.java)
-                        .getRepos(textField.text.toString())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribeOn(Schedulers.io())
-            }, {
-                progressBar.visibility = View.GONE
-                button.isEnabled = true
-            })
-                    .subscribe({ result ->
-                        Log.d("MainActivity", result.toString())
-                        recyclerView.adapter =
-                                RecyclerViewAdapter(result.map { r -> r.name })
-                        (getSystemService(Context.INPUT_METHOD_SERVICE)
-                                as InputMethodManager)
-                                .hideSoftInputFromWindow(
-                                        currentFocus.windowToken,
-                                        InputMethodManager.HIDE_NOT_ALWAYS)
-                    }, { error ->
-                        Log.e("MainActivity", "ERROR!", error)
-                        Toast.makeText(this, getString(R.string.network_error),
-                                Toast.LENGTH_LONG).show()
-                    })
+            Single.using(
+                    { setProcessBar(true) },
+                    { setRetrofit() },
+                    { setProcessBar(false) })
+                    .subscribe(this::processResults,
+                            this::processError)
+        } else {
+            showToast(R.string.empty_input)
         }
         textField.requestFocus()
+    }
+
+    private fun setProcessBar(shouldShow: Boolean) {
+        progressBar.visibility =
+                if (shouldShow) View.VISIBLE else View.GONE
+        button.isEnabled = !shouldShow
+    }
+
+    private fun setRetrofit(): Single<List<Repository>> {
+        return Retrofit.Builder()
+                .baseUrl("https://api.github.com/")
+                .addCallAdapterFactory(
+                        RxJava2CallAdapterFactory.create())
+                .addConverterFactory(GsonConverterFactory.create())
+                .build()
+                .create<GitHubService>(GitHubService::class.java)
+                .getRepos(textField.text.toString())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+    }
+
+    private fun processResults(results: List<Repository>) {
+        Log.d("MainActivity", results.toString())
+        recyclerView.adapter =
+                RecyclerViewAdapter(results.map { r -> r.name })
+        (getSystemService(Context.INPUT_METHOD_SERVICE)
+                as InputMethodManager)
+                .hideSoftInputFromWindow(
+                        currentFocus.windowToken,
+                        InputMethodManager.HIDE_NOT_ALWAYS)
+    }
+
+    private fun processError(error: Throwable) {
+        Log.e("MainActivity", "ERROR!", error)
+        showToast(R.string.network_error)
+    }
+
+    private fun showToast(message: Int) {
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show()
     }
 }
