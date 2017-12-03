@@ -4,4 +4,5 @@
     <string name="button_name">Submit</string>
     <string name="empty_input">Please input a user name.</string>
     <string name="input_hint_string">Please input a github user name</string>
+    <string name="no_such_user_error">No such user found.</string>
 </resources>

@@ -5,4 +5,5 @@
     <string name="button_name">検索</string>
     <string name="empty_input">ユーザ名を入れて下さい。</string>
     <string name="input_hint_string">Githubユーザ名を入れて下さい</string>
+    <string name="no_such_user_error">そのようなユーザはいません</string>
 </resources>
