@@ -15,20 +15,21 @@ import com.github.yamamotoj.pikkel.Pikkel
 import com.github.yamamotoj.pikkel.PikkelDelegate
 import com.squareup.leakcanary.LeakCanary
 import com.squareup.leakcanary.RefWatcher
+import com.trello.rxlifecycle2.android.lifecycle.kotlin.bindToLifecycle
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_main.*
 import retrofit2.HttpException
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
+import javax.inject.Inject
+import javax.inject.Named
 
 class MainActivity: AppCompatActivity(), Pikkel by PikkelDelegate() {
-    private val url = "https://api.github.com/"
+    @field:[Inject Named("URL")] lateinit var url: String
     private var adapter by state<RecyclerViewAdapter?>(null)
-    private lateinit var single: Disposable
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -41,6 +42,7 @@ class MainActivity: AppCompatActivity(), Pikkel by PikkelDelegate() {
             d { "adapter: $adapter" }
             recyclerView.adapter = adapter
         }
+        (application as MainApplication).getComponent().inject(this)
     }
 
     fun setupLeakCanary(): RefWatcher {
@@ -55,10 +57,11 @@ class MainActivity: AppCompatActivity(), Pikkel by PikkelDelegate() {
 
     fun submit(button: View) {
         if (!TextUtils.isEmpty(textField.text)) {
-            single = Single.using(
+            Single.using(
                     { setProcessBar(true) },
                     { setRetrofit(url) },
                     { setProcessBar(false) })
+                    .bindToLifecycle(this)
                     .subscribe(this::processResults,
                             this::processError)
         } else {
