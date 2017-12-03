@@ -13,6 +13,8 @@ import com.github.ajalt.timberkt.d
 import com.github.ajalt.timberkt.e
 import com.github.yamamotoj.pikkel.Pikkel
 import com.github.yamamotoj.pikkel.PikkelDelegate
+import com.squareup.leakcanary.LeakCanary
+import com.squareup.leakcanary.RefWatcher
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
@@ -21,7 +23,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import retrofit2.HttpException
 import retrofit2.Retrofit
 import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
-import retrofit2.converter.gson.GsonConverterFactory
+import retrofit2.converter.moshi.MoshiConverterFactory
 
 class MainActivity: AppCompatActivity(), Pikkel by PikkelDelegate() {
     private val url = "https://api.github.com/"
@@ -30,6 +32,7 @@ class MainActivity: AppCompatActivity(), Pikkel by PikkelDelegate() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setupLeakCanary()
         setContentView(R.layout.activity_main)
         Timber.plant(timber.log.Timber.DebugTree())
         recyclerView.layoutManager = LinearLayoutManager(this)
@@ -38,6 +41,11 @@ class MainActivity: AppCompatActivity(), Pikkel by PikkelDelegate() {
             d { "adapter: $adapter" }
             recyclerView.adapter = adapter
         }
+    }
+
+    fun setupLeakCanary(): RefWatcher {
+        return if (LeakCanary.isInAnalyzerProcess(this))
+            RefWatcher.DISABLED else LeakCanary.install(application)
     }
 
     override fun onSaveInstanceState(outState: Bundle?) {
@@ -70,7 +78,7 @@ class MainActivity: AppCompatActivity(), Pikkel by PikkelDelegate() {
                 .baseUrl(url)
                 .addCallAdapterFactory(
                         RxJava2CallAdapterFactory.create())
-                .addConverterFactory(GsonConverterFactory.create())
+                .addConverterFactory(MoshiConverterFactory.create())
                 .build()
                 .create<GitHubService>(GitHubService::class.java)
                 .getRepos(textField.text.toString())
