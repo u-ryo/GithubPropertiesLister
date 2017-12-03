@@ -18,6 +18,8 @@ ListView (not RecyclerView),
 no Rx (no RxAndroid),
 no error handling,
 no using resources (strings.xml),
-no ProgressBar.
+no ProgressBar,
+no internationalization,
+no hint text(placeholder).
 I'd like to write more fluently.
 I created this project for my revenge (but for hours).

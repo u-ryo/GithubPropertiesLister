@@ -18,17 +18,32 @@ import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory
 import retrofit2.converter.gson.GsonConverterFactory
 
 class MainActivity: AppCompatActivity() {
+    private val url = "https://api.github.com/"
+    private var adapter: RecyclerViewAdapter? = null
+    private val listKey = "list"
+    private val tag = "MainActivity"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         recyclerView.layoutManager = LinearLayoutManager(this)
+        adapter = savedInstanceState?.getParcelable(listKey)
+        if (adapter != null) {
+            Log.d(tag, adapter?.toString())
+            recyclerView.adapter = adapter
+        }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle?) {
+        outState?.putParcelable(listKey, adapter)
+        super.onSaveInstanceState(outState)
     }
 
     fun submit(button: View) {
         if (!TextUtils.isEmpty(textField.text)) {
             Single.using(
                     { setProcessBar(true) },
-                    { setRetrofit() },
+                    { setRetrofit(url) },
                     { setProcessBar(false) })
                     .subscribe(this::processResults,
                             this::processError)
@@ -44,9 +59,9 @@ class MainActivity: AppCompatActivity() {
         button.isEnabled = !shouldShow
     }
 
-    private fun setRetrofit(): Single<List<Repository>> {
+    private fun setRetrofit(url: String): Single<List<Repository>> {
         return Retrofit.Builder()
-                .baseUrl("https://api.github.com/")
+                .baseUrl(url)
                 .addCallAdapterFactory(
                         RxJava2CallAdapterFactory.create())
                 .addConverterFactory(GsonConverterFactory.create())
@@ -58,9 +73,9 @@ class MainActivity: AppCompatActivity() {
     }
 
     private fun processResults(results: List<Repository>) {
-        Log.d("MainActivity", results.toString())
-        recyclerView.adapter =
-                RecyclerViewAdapter(results.map { r -> r.name })
+        Log.d(tag, results.toString())
+        adapter = RecyclerViewAdapter(results.map { r -> r.name })
+        recyclerView.adapter = adapter
         (getSystemService(Context.INPUT_METHOD_SERVICE)
                 as InputMethodManager)
                 .hideSoftInputFromWindow(
@@ -69,7 +84,7 @@ class MainActivity: AppCompatActivity() {
     }
 
     private fun processError(error: Throwable) {
-        Log.e("MainActivity", "ERROR!", error)
+        Log.e(tag, "ERROR!", error)
         showToast(R.string.network_error)
     }
 

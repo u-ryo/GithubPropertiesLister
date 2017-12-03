@@ -9,6 +9,6 @@ import io.reactivex.Single
  */
 interface GitHubService {
     @GET("users/{username}/repos")
-    fun getRepos(@Path("username") username : String): Single<List<Repository>>
+    fun getRepos(@Path("username") username: String): Single<List<Repository>>
 }
 data class Repository(val name: String)
