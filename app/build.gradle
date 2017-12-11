@@ -3,6 +3,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'kotlin-kapt'
 apply plugin: 'de.mannodermaus.android-junit5'
+//apply plugin: 'org.junit.platform.gradle.plugin'
 
 junitPlatform {
     filters {
@@ -10,10 +11,6 @@ junitPlatform {
             include 'spek'
         }
     }
-}
-
-repositories {
-    maven { url "http://dl.bintray.com/jetbrains/spek" }
 }
 
 android {
@@ -38,6 +35,12 @@ android {
     sourceSets.all {
         java.srcDirs += "src/${name}/kotlin"
     }
+    testOptions {
+        unitTests {
+            returnDefaultValues = true
+            includeAndroidResources = true
+        }
+    }
 }
 
 dependencies {
@@ -60,27 +63,30 @@ dependencies {
 
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
-//    kapt 'com.jakewharton:butterknife-compiler:8.5.1'
     kapt "com.google.dagger:dagger-compiler:$dagger2Version"
 }
 
 // separated for clarity
 dependencies {
     testImplementation("org.jetbrains.spek:spek-api:$spekVersion") {
-        exclude group: "org.jetbrains.kotlin"
+        exclude group: 'org.jetbrains.kotlin'
     }
     testImplementation("org.jetbrains.spek:spek-junit-platform-engine:$spekVersion") {
-        exclude group: "org.junit.platform"
-        exclude group: "org.jetbrains.kotlin"
+        exclude group: 'org.junit.platform'
+        exclude group: 'org.jetbrains.kotlin'
     }
     testImplementation "org.jetbrains.kotlin:kotlin-reflect:$kotlin_version"
-    testImplementation "org.junit.platform:junit-platform-engine:${junitPlatformVersion}"
-    testImplementation "org.junit.platform:junit-platform-runner:${junitPlatformVersion}"
+    testImplementation('org.amshove.kluent:kluent:1.31') {
+        exclude group: 'com.nhaarman'
+    }
+    testImplementation "org.jetbrains.spek:spek-data-driven-extension:$spekVersion"
+    testImplementation "org.junit.platform:junit-platform-engine:$junitPlatformVersion"
+    testImplementation "org.junit.platform:junit-platform-runner:$junitPlatformVersion"
 
     testImplementation junit5()
     testCompileOnly 'de.mannodermaus.gradle.plugins:android-junit5-embedded-runtime:1.0.0'
-    testImplementation "org.junit.platform:junit-platform-launcher:${junitPlatformVersion}"
-    testImplementation "org.junit.jupiter:junit-jupiter-api:${junitJupiterVersion}"
+    testImplementation "org.junit.platform:junit-platform-launcher:$junitPlatformVersion"
+    testImplementation "org.junit.jupiter:junit-jupiter-api:$junitJupiterVersion"
 
     testImplementation 'org.robolectric:robolectric:3.5.1'
 }
