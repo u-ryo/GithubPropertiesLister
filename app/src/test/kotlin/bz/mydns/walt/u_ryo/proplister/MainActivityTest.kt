@@ -18,20 +18,20 @@ import org.robolectric.annotation.Config
 @RunWith(RobolectricTestRunner::class)
 @Config(constants = BuildConfig::class)
 internal class MainActivityTest {
-    private lateinit var activity: MainActivity
-    @BeforeEach
-    fun setUp() {
-        activity = Robolectric.setupActivity(MainActivity::class.java)
-    }
+  private lateinit var activity: MainActivity
+  @BeforeEach
+  fun setUp() {
+    activity = Robolectric.setupActivity(MainActivity::class.java)
+  }
 
-    @AfterEach
-    fun tearDown() {
-    }
+  @AfterEach
+  fun tearDown() {
+  }
 
-    @Test
-    fun onCreate() {
-        activity.findViewById<EditText>(R.id.textField).visibility
-                shouldBe(true)
-    }
+  @Test
+  fun onCreate() {
+    activity.findViewById<EditText>(R.id.textField).visibility
+    shouldBe(true)
+  }
 
 }

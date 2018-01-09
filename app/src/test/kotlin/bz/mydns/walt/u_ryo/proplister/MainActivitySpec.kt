@@ -21,29 +21,29 @@ import org.robolectric.annotation.Config
  */
 @RunWith(RobolectricTestRunner::class)
 @Config(constants = BuildConfig::class)
-class MainActivitySpec: Spek({
-    given("StringBuilder") {
-        val builder = StringBuilder("foo")
+class MainActivitySpec : Spek({
+  given("StringBuilder") {
+    val builder = StringBuilder("foo")
 
-        on("append") {
-            builder.append("bar")
+    on("append") {
+      builder.append("bar")
 
-            it("should return the result of appending the arg") {
-                builder.toString() shouldEqual "foobar"
-            }
-        }
+      it("should return the result of appending the arg") {
+        builder.toString() shouldEqual "foobar"
+      }
     }
+  }
 
-    given("activity") {
-        lateinit var activity: MainActivity
-        on("setup") {
-            it("should make no error") {
-                activity = Robolectric.setupActivity(MainActivity::class.java)
-                activity.findViewById<EditText>(R.id.textField)
-                        .text.toString() shouldBeEqualTo ""
-                activity.findViewById<ProgressBar>(R.id.progressBar)
-                        .visibility shouldBe (View.GONE)
-            }
-        }
+  given("activity") {
+    lateinit var activity: MainActivity
+    on("setup") {
+      it("should make no error") {
+        activity = Robolectric.setupActivity(MainActivity::class.java)
+        activity.findViewById<EditText>(R.id.textField)
+          .text.toString() shouldBeEqualTo ""
+        activity.findViewById<ProgressBar>(R.id.progressBar)
+          .visibility shouldBe (View.GONE)
+      }
     }
+  }
 })

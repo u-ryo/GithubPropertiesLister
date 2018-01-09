@@ -5,16 +5,16 @@ import android.app.Application
 /**
  * Created by u-ryo on 17/12/04.
  */
-class MainApplication: Application() {
-    private lateinit var appComponent: AppComponent
+class MainApplication : Application() {
+  private lateinit var appComponent: AppComponent
 
-    fun getComponent(): AppComponent = appComponent
+  fun getComponent(): AppComponent = appComponent
 
-    override fun onCreate() {
-        super.onCreate()
-        appComponent = DaggerAppComponent.builder()
+  override fun onCreate() {
+    super.onCreate()
+    appComponent = DaggerAppComponent.builder()
 //                .appModule(AppModule(this))
-                .modelModule(ModelModule())
-                .build()
-    }
+      .modelModule(ModelModule())
+      .build()
+  }
 }

@@ -27,86 +27,91 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import javax.inject.Inject
 import javax.inject.Named
 
-class MainActivity: AppCompatActivity(), Pikkel by PikkelDelegate() {
-    @field:[Inject Named("URL")] lateinit var url: String
-    private var adapter by state<RecyclerViewAdapter?>(null)
+class MainActivity : AppCompatActivity(), Pikkel by PikkelDelegate() {
+  @field:[Inject Named("URL")] lateinit var url: String
+  private var adapter by state<RecyclerViewAdapter?>(null)
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setupLeakCanary()
-        setContentView(R.layout.activity_main)
-        Timber.plant(timber.log.Timber.DebugTree())
-        recyclerView.layoutManager = LinearLayoutManager(this)
-        restoreInstanceState(savedInstanceState)
-        adapter?.run {
-            d { "adapter: $adapter" }
-            recyclerView.adapter = adapter
-        }
-        (application as MainApplication).getComponent().inject(this)
+  override fun onCreate(savedInstanceState: Bundle?) {
+    super.onCreate(savedInstanceState)
+    setupLeakCanary()
+    setContentView(R.layout.activity_main)
+    Timber.plant(timber.log.Timber.DebugTree())
+    recyclerView.layoutManager = LinearLayoutManager(this)
+    restoreInstanceState(savedInstanceState)
+    adapter?.run {
+      d { "adapter: $adapter" }
+      recyclerView.adapter = adapter
     }
+    (application as MainApplication).getComponent().inject(this)
+  }
 
-    fun setupLeakCanary(): RefWatcher {
-        return if (LeakCanary.isInAnalyzerProcess(this))
-            RefWatcher.DISABLED else LeakCanary.install(application)
-    }
+  fun setupLeakCanary(): RefWatcher {
+    return if (LeakCanary.isInAnalyzerProcess(this))
+      RefWatcher.DISABLED else LeakCanary.install(application)
+  }
 
-    override fun onSaveInstanceState(outState: Bundle?) {
-        super.onSaveInstanceState(outState)
-        saveInstanceState(outState)
-    }
+  override fun onSaveInstanceState(outState: Bundle?) {
+    super.onSaveInstanceState(outState)
+    saveInstanceState(outState)
+  }
 
-    fun submit(button: View) {
-        if (!TextUtils.isEmpty(textField.text)) {
-            Single.using(
-                    { setProcessBar(true) },
-                    { setRetrofit(url) },
-                    { setProcessBar(false) })
-                    .bindToLifecycle(this)
-                    .subscribe(this::processResults,
-                            this::processError)
-        } else {
-            showToast(R.string.empty_input)
-        }
-        textField.requestFocus()
+  fun submit(button: View) {
+    if (!TextUtils.isEmpty(textField.text)) {
+      Single.using(
+        { setProcessBar(true) },
+        { setRetrofit(url) },
+        { setProcessBar(false) })
+        .bindToLifecycle(this)
+        .subscribe(this::processResults,
+          this::processError)
+    } else {
+      showToast(R.string.empty_input)
     }
+    textField.requestFocus()
+  }
 
-    private fun setProcessBar(shouldShow: Boolean) {
-        progressBar.visibility =
-                if (shouldShow) View.VISIBLE else View.GONE
-        button.isEnabled = !shouldShow
-    }
+  private fun setProcessBar(shouldShow: Boolean) {
+    progressBar.visibility =
+      if (shouldShow) View.VISIBLE else View.GONE
+    button.isEnabled = !shouldShow
+  }
 
-    private fun setRetrofit(url: String): Single<List<Repository>> {
-        return Retrofit.Builder()
-                .baseUrl(url)
-                .addCallAdapterFactory(
-                        RxJava2CallAdapterFactory.create())
-                .addConverterFactory(MoshiConverterFactory.create())
-                .build()
-                .create<GitHubService>(GitHubService::class.java)
-                .getRepos(textField.text.toString())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeOn(Schedulers.io())
-    }
+  private fun setRetrofit(url: String): Single<List<Repository>> {
+    return Retrofit.Builder()
+      .baseUrl(url)
+      .addCallAdapterFactory(
+        RxJava2CallAdapterFactory.create())
+      .addConverterFactory(MoshiConverterFactory.create())
+      .build()
+      .create<GitHubService>(GitHubService::class.java)
+      .getRepos(textField.text.toString())
+      .observeOn(AndroidSchedulers.mainThread())
+      .subscribeOn(Schedulers.io())
+  }
 
-    private fun processResults(results: List<Repository>) {
-        d { "results: $results" }
-        adapter = RecyclerViewAdapter(results.map { r -> r.name })
-        recyclerView.adapter = adapter
-        (getSystemService(Context.INPUT_METHOD_SERVICE)
-                as InputMethodManager)
-                .hideSoftInputFromWindow(
-                        currentFocus.windowToken,
-                        InputMethodManager.HIDE_NOT_ALWAYS)
-    }
+  private fun processResults(results: List<Repository>) {
+    d { "results: $results" }
+    adapter = RecyclerViewAdapter(results.map { r -> r.name })
+    recyclerView.adapter = adapter
+    (getSystemService(Context.INPUT_METHOD_SERVICE)
+      as InputMethodManager)
+      .hideSoftInputFromWindow(
+        currentFocus.windowToken,
+        InputMethodManager.HIDE_NOT_ALWAYS)
+  }
 
-    private fun processError(error: Throwable) {
-        e { "ERROR: ${error.message}" }
-        showToast(if (error is HttpException && error.code() == 404)
-            R.string.no_such_user_error else R.string.network_error)
-    }
+  private fun processError(error: Throwable) {
+    e { "ERROR: ${error.message}" }
+    showToast(if (error is HttpException && error.code() == 404)
+      R.string.no_such_user_error else R.string.network_error)
+  }
 
-    private fun showToast(message: Int) {
-        Toast.makeText(this, message, Toast.LENGTH_LONG).show()
-    }
+  private fun showToast(message: Int) {
+    Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+  }
+
+  override fun onDestroy() {
+    recyclerView.adapter = null
+    super.onDestroy()
+  }
 }

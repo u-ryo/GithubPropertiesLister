@@ -10,8 +10,8 @@ import javax.inject.Singleton
  */
 @Module
 class ModelModule {
-    @Provides
-    @Singleton
-    @Named("URL")
-    fun provideURL(): String = "https://api.github.com"
+  @Provides
+  @Singleton
+  @Named("URL")
+  fun provideURL(): String = "https://api.github.com"
 }
